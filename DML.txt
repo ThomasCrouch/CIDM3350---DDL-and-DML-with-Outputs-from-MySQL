@@ -1,0 +1,168 @@
+use dealership;
+
+
+#UQ1
+insert into Customer(Customer_Name, Street_Address, Zip_Code, Email, phone)
+VALUES ('John Smith', '123 Drury Lane', 79111, 'JSmith@cxr.com', '310-805-9801');
+
+#UQ2
+Update Car set mileage = mileage + 10000 where VIN ='1N6AD0CU7EN585013';
+
+#UQ3
+select VIN from Car where Make = 'Lexus' and customerID = 1;
+INSERT INTO ServiceTicket(ticketDate, customerID, VIN, issue_desc)
+VALUES (curDate(), 1, '3D7TP2CT0AG772172', 'Change Transmission Fluid');
+
+#UQ4
+update Part set Quantity = Quantity - 10 where PartID = 1000;
+
+#IQ1
+select count(*) as 'Customers with balance' FROm Bill WHERE balance > 0;
+
+#IQ2
+#All
+SELECT 
+    Customer.CustomerID,
+    Customer.Customer_Name,
+    Bill.BillNumber,
+    Bill.balance
+FROM
+    Bill
+    INNER JOIN ServiceTicket on Bill.TicketID = ServiceTicket.TicketID
+    INNER JOIN Customer on ServiceTicket.CustomerID = Customer.CustomerID
+WHERE
+    Bill.balance > 0
+    ;
+#Grouped for a total
+select 
+    Customer.CustomerID,
+    Customer.Customer_Name,
+    group_concat(Bill.BillNumber) as BillNumbers,
+    sum(Bill.balance) TotalCustomerBalance
+FROM
+    Bill
+    INNER JOIN ServiceTicket on Bill.TicketID = ServiceTicket.TicketID
+    INNER JOIN Customer on ServiceTicket.CustomerID = Customer.CustomerID
+WHERE
+    Bill.balance > 0
+Group By
+    Customer.CustomerID,
+    Customer.Customer_Name
+;
+
+#IQ3
+select 
+ServiceTicket.TicketID as TicketNumber,
+ServiceTicket.issue_desc,
+ServiceTicket.ticketDate,
+Service.ServiceID as ServiceNumber,
+Service.ServiceDate,
+Service.ServiceDesc,
+PartService.PartID as PartNumber,
+Part.Part_Description,
+PartService.QuantityUsed
+from 
+    ServiceTicket 
+    inner join Service on ServiceTicket.ticketID = Service.ticketID
+    inner join PartService on Service.serviceID = PartService.serviceID
+    inner join Part on PartService.PartID = Part.PartID
+WHERE
+    ServiceTicket.VIN = '4USBU53567L660273'
+    ;
+    
+#IQ4
+select 
+ServiceTicket.TicketID as TicketNumber,
+ServiceTicket.issue_desc,
+ServiceTicket.ticketDate,
+ServiceTicket.VIN,
+Service.ServiceID as ServiceNumber,
+Service.ServiceDate,
+Service.ServiceDesc,
+PartService.QuantityUsed,
+PartService.PartID as PartNumber,
+Part.Part_Description
+
+from 
+    ServiceTicket 
+    inner join Service on ServiceTicket.ticketID = Service.ticketID
+    inner join PartService on Service.serviceID = PartService.serviceID
+    inner join Part on PartService.PartID = Part.PartID
+WHERE
+    Part.PartID = 390
+    ;
+ 
+#IQ5   
+SELECT 
+    count(distinct ServiceTicket.ticketID) as 'cars serviced between 1/6/2015 and 2/7/2015'
+FROM 
+    ServiceTicket 
+    inner join Service on ServiceTicket.ticketID = Service.ticketID
+WHERE
+    Service.ServiceDate between  '2015-01-06' and '2015-02-07'
+ ;
+ 
+#IQ6  
+SELECT 
+    sum(laborCost) + sum(partCost) as 'Total $ value of Parts and Labor for cars serviced between 1/6/2015 and 2/7/2015'
+FROM 
+    ServiceTicket 
+    inner join Service on ServiceTicket.ticketID = Service.ticketID
+WHERE
+    Service.ServiceDate between  '2015-01-06' and '2015-02-07'
+;
+
+#IQ7
+SELECT
+    Vendor.vendorID,
+    Vendor.vendor,
+    Vendor.vendorAddress,
+    Vendor.vendorPhone
+FROM
+    Part
+    inner join vendorPart on Part.partid = vendorPart.partid
+    inner join Vendor on vendorPart.vendorID = Vendor.vendorID
+WHERE 
+    Part.partid = 1211
+    ;
+    
+#IQ8    
+SELECT 
+    PartService.partID,
+    Part_Description, 
+    sum(QuantityUsed) as 'Total Used Parts'
+FROM 
+    PartService 
+    inner join Part on PartService.partID = Part.partID
+GROUP BY 
+    PartService.partID, 
+    Part_Description
+ORDER BY 
+    sum(quantityUsed) DESC
+LIMIT 1
+;
+
+#IQ9
+SELECT
+    min(bill_total) as 'Smallest Bill',
+    max(bill_total) as 'Largest Bill', 
+    avg(bill_total) as 'Average Bill'
+FROM
+    Bill
+;
+
+#IQ10
+SELECT
+    Part.PartID,
+    Part.Part_Description,
+    Part.Price,
+    Part.Quantity,
+    Vendor.Vendor,
+    Vendor.vendorAddress,
+    Vendor.vendorPhone
+FROM
+    Part
+    inner join vendorPart on Part.PartId = vendorPart.PartId
+    inner join Vendor on vendorPart.VendorId = Vendor.VendorId
+Where
+    Part.Quantity < 3

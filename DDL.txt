@@ -1,0 +1,474 @@
+
+
+CREATE SCHEMA IF NOT EXISTS Dealership;
+
+use Dealership;
+
+CREATE TABLE IF NOT EXISTS Customer (
+  CustomerID INT NOT NULL AUTO_INCREMENT ,
+  Customer_Name VARCHAR(45) NULL,
+  Street_Address VARCHAR(45) NULL,
+  Zip_Code VARCHAR(45) NULL,
+  Email VARCHAR(45) NULL,
+  phone VARCHAR(45) NULL,
+  PRIMARY KEY (CustomerID)
+);
+
+CREATE TABLE IF NOT EXISTS Car (
+  VIN VARCHAR(45) NOT NULL,
+  CustomerID INT NOT NULL,
+  Make VARCHAR(45) NULL,
+  model VARCHAR(45) NULL,
+  modelYear INT NULL,
+  Mileage INT NULL,
+  PRIMARY KEY (VIN, CustomerID),
+
+   FOREIGN KEY (`CustomerID`)
+   REFERENCES Customer (`CustomerID`)
+);
+
+ 
+CREATE TABLE IF NOT EXISTS Mechanic (
+  
+  MechanicID INT NOT NULL,
+  mecName VARCHAR(45) NULL,
+  mecRate INT NULL,
+  PRIMARY KEY (MechanicID)
+);
+
+CREATE TABLE IF NOT EXISTS ServiceTicket (
+  
+  TicketID INT NOT NULL AUTO_INCREMENT,
+  ticketDate DATE NULL,
+  CustomerID INT NULL,
+  VIN VARCHAR(45) NULL,
+  issue_desc VARCHAR(75) NULL,
+  PRIMARY KEY (TicketID),
+  
+  FOREIGN KEY (`VIN`,`CustomerID`)
+  REFERENCES Car (`VIN`,`CustomerID`)
+);
+
+
+CREATE TABLE IF NOT EXISTS Service (
+  
+  ServiceID INT NOT NULL,
+  TicketID INT NOT NULL,
+  ServiceDesc VARCHAR(45) NULL,
+  laborCost DECIMAL(10,2) NOT NULL,
+  partCost DECIMAL(10,2) NOT NULL,
+  ServiceDate DATE,
+  PRIMARY KEY (ServiceID),
+  
+  FOREIGN KEY (`ticketID`)
+  REFERENCES ServiceTicket (`ticketID`)
+  
+);
+
+
+CREATE TABLE IF NOT EXISTS LaborService (
+  
+  serviceID INT NOT NULL,
+  MechanicID INT NOT NULL,
+  workTime DECIMAL(10,2) NULL,
+  laborCharge DECIMAL(10,2) NULL,
+  
+   FOREIGN KEY (`serviceID`)
+   REFERENCES Service (`serviceID`),
+    
+   FOREIGN KEY (`mechanicID`)
+   REFERENCES Mechanic (`mechanicID`)
+  
+);
+
+CREATE TABLE IF NOT EXISTS Part (
+  
+  PartID INT NOT NULL,
+  Part_Description VARCHAR(100) NULL,
+  Price INT NOT NULL,
+  Quantity INT NOT NULL,
+  PRIMARY KEY (PartID)
+);
+
+CREATE TABLE IF NOT EXISTS Vendor (
+  
+  VendorID INT NOT NULL,
+  Vendor VARCHAR(45) NOT NULL,
+  vendorAddress VARCHAR(45) NULL,
+  vendorPhone VARCHAR(45) NULL,
+  PRIMARY KEY (VendorID)
+);
+
+
+CREATE TABLE IF NOT EXISTS vendorPart (
+  
+  PartID INT NOT NULL,
+  VendorID INT NOT NULL,
+  PRIMARY KEY (PartID, VendorID),
+  
+  FOREIGN KEY (`PartID`)
+  REFERENCES Part (`PartID`),
+  
+  FOREIGN KEY (`VendorID`)
+  REFERENCES Vendor (`VendorID`)
+  
+  
+);
+
+CREATE TABLE IF NOT EXISTS PartService (
+  
+  ServiceID INT NOT NULL,
+  PartID INT NOT NULL,
+  QuantityUsed INT NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  totalPrice DECIMAL(10,2) NOT NULL,
+  
+  FOREIGN KEY (`PartID`)
+  REFERENCES Part (`PartID`),
+  
+  FOREIGN KEY (`ServiceID`)
+  REFERENCES Service (`serviceID`)
+);
+
+CREATE TABLE IF NOT EXISTS Bill (
+
+  BillNumber INT NOT NULL,
+  bDate DATE NOT NULL,
+  ticketID INT NOT NULL,
+  bill_total DECIMAL(10,2) NULL,
+  balance DECIMAL(10,2)  NULL,
+  PRIMARY KEY (BillNumber),
+  
+  FOREIGN KEY (`ticketID`)
+  REFERENCES ServiceTicket (`ticketID`)
+);
+
+INSERT INTO Customer(CustomerID, Customer_Name, Street_Address, Zip_Code, Email, phone) 
+
+VALUES
+(4,'Alvin Ivanichev','36821 Boyd Crossing','79135','aivanichev3@cnn.com','510-873-3869'),
+(2,'Giavani Bulled','518 Arrowood Pass','79114','gbulled1@army.mil','379-481-6791'),
+(6,'Arlyne Zannuto','734 Mesta Junction','79151','azannuto5@buzzfeed.com','301-809-9077'),
+(12,'Afton Ranstead','7001 Green Ridge Street','79115','aransteadb@printfriendly.com','912-454-6904'),
+(18,'Kerrie Corish','497 Twin Pines Alley','79149','kcorishh@bloomberg.com','121-187-4390'),
+(11,'Cookie Dowdeswell','0172 School Drive','79124','cdowdeswella@yale.edu','233-635-6626'),
+(1,'Alison Creagh','81 2nd Trail','79148','acreagh0@facebook.com','586-756-9711'),
+(14,'Judd Dorkins','1466 Meadow Vale Terrace','79145','jdorkinsd@ihg.com','600-135-9193'),
+(10,'Umberto Edeson','125 Grover Point','79116','uedeson9@mail.ru','990-628-5698'),
+(5,'Emelia Spurway','3 Utah Terrace','79127','espurway4@tripod.com','391-919-5684'),
+(13,'Miguel Durrance','28767 Rockefeller Junction','79124','mdurrancec@bing.com','777-117-3804'),
+(9,'Jules Teasell','77674 Anzinger Lane','79151','jteasell8@go.com','644-966-7391'),
+(17,'Natala Guillotin','914 Little Fleur Terrace','79155','nguilloting@mtv.com','626-715-1541'),
+(8,'Debbi Meconi','321 Heffernan Alley','79140','dmeconi7@360.cn','238-797-7793'),
+(15,'Far Manuele','54 Division Point','79150','fmanuelee@opensource.org','505-692-8487'),
+(7,'Allin Doige','9061 Elgar Crossing','79121','adoige6@huffingtonpost.com','491-699-8398'),
+(3,'Jervis Coultous','49 Ludington Park','79148','jcoultous2@dropbox.com','919-596-5875'),
+(16,'Belle Edgeler','58 Shoshone Point','79115','bedgelerf@wix.com','412-945-2329');
+
+INSERT INTO Car(VIN, CustomerID, Make, model, modelYear, Mileage)
+
+VALUES
+('1FTEX1CM1DF308686',4,'Mercedes-Benz','CLK-Class',2004,69361),
+('1G4GA5ER0DF690458',2,'Buick','Electra',1990,95293),
+('1N6AF0KY5FN668410',2,'Lincoln','Mark LT',2008,57852),
+('1GD11XEG8FF460668',6,'Mitsubishi','Eclipse',2000,75848),
+('1N4CL2AP8BC740348',12,'Nissan','Altima',2004,30400),
+('1N6AD0CU7EN585013',18,'Ford','Escape',2012,25940),
+('2C3CDXEJ7EH040515',11,'Dodge','Ram 1500',1999,63906),
+('3D7TP2CT0AG772172',1,'Lexus','GX',2009,79981),
+('3N1AB6AP9AL263687',1,'Pontiac','Sunbird',1992,45381),
+('3G5DB03E13S488866',14,'BMW','7 Series',1996,79293),
+('3G5DB03E42S975994',10,'Cadillac','DeVille',1996,76240),
+('4USBU53567L660273',5,'Chevrolet','Aveo',2009,22542),
+('5NPDH4AE2BH367967',13,'BMW','Z4',2005,11597),
+('JH4CU2E6XAC106495',9,'Volkswagen','Type 2',1991,65169),
+('KMHCT4AE8CU666621',17,'GMC','Yukon',2006,81435),
+('WA1CGBFE2ED900562',8,'Lexus','GS',1995,14742),
+('WAUCFAFH0AN108912',15,'Saab','9000',1987,41385),
+('WAUEF78E78A567161',7,'Chevrolet','Silverado 1500',2009,53182),
+('WBA3C1C58FP238886',3,'Volvo','S80',2009,89464),
+('WBSBL93474J482753',16,'GMC','1500',1996,13546);
+
+INSERT INTO Mechanic(MechanicID, mecName, mecRate)
+
+VALUES
+(1,	'Dorry Bremen',	29),
+(2,	'Abel Deschlein',22),
+(3,	'Lou Rowlin',39),
+(4,	'Andie MacCarroll',37),
+(5,	'Georas Breche',46);
+
+INSERT INTO ServiceTicket(TicketID, ticketDate, CustomerID, VIN, issue_desc)
+
+VALUES
+(178,'2015-01-02',1,'3N1AB6AP9AL263687','Making noise when moves'),
+(283,'2015-01-05',1,'3N1AB6AP9AL263687','Making noise when moves'),
+(14,'2015-01-06',4,'1FTEX1CM1DF308686','PM SERVICE  CHECK'),
+(248,'2015-01-06',18,'1N6AD0CU7EN585013','NEED SERVICE CHECK BRAKES'),
+(121,'2015-01-09',5,'4USBU53567L660273','NEED SERVICE'),
+(13,'2015-01-14',3,'WBA3C1C58FP238886','SERVICEROB EXT 5604'),
+(172,'2015-01-14',4,'1FTEX1CM1DF308686','SEAT BELT BUZZER KEEP GOING ON WHEN DRIVING WILL NOT STOP'),
+(228,'2015-01-15',5,'4USBU53567L660273','Car Heats up'),
+(626,'2015-02-07',4,'1FTEX1CM1DF308686','W-Shield wipers not working')
+;
+
+INSERT INTO Service(ticketID, ServiceID, ServiceDesc, laborCost, partCost,ServiceDate)
+VALUES
+(178,13999,'Change  PTO PUMP',87,85,'2015-01-02'),
+(178,14140,'INSTALL SPINNER ASSY',66,450,'2015-01-02'),
+(283,14169,'DOG BONE PIN BROKEN',88,12,'2015-01-05'),
+(14,14073,'PM SERVICE  CHECK TURN SIGNAL ',39,20,'2015-01-06'),
+(248,14157,'TARP VALVE STICKINGRIGHT SIDE ',129.5,58,'2015-01-06'),
+(248,14000,'BRAKE PADs and Routers Replace',46.4,190,'2015-01-06'),
+(248,14155,'HYD CAP CHECK ENGINE LIGHT ON',37,0,'2015-01-06'),
+(121,14107,'REMOVE & REPLACE REAR SPRINGS',121,62,'2015-01-09'),
+(121,14209,'NEEDS SIGNAL BULBS ',39,10,'2015-01-09'),
+(121,14212,'NOISE AT IDLE',87,0,'2015-01-09'),
+(121,14213,'NEED BOLTS FOR SPINNER SHILD',18.5,12,'2015-01-09'),
+(13,14232,'SERVICEROB EXT 5604',78,260,'2015-01-14'),
+(172,14068,'SEAT BELT assembly replaced',173.8,210,'2015-01-14'),
+(228,14216,'COOLANT LEAK SPINNER LIGHT OUT',88,70,'2015-01-15'),
+(228,14223,'STOP LIGHTS NOT WORKING ',46,10,'2015-01-15'),
+(626,14199,'WASHER FLUIDDEF',23,62,'2015-02-07')
+;
+
+
+INSERT INTO LaborService(serviceID,MechanicID,workTime,laborCharge)
+
+VALUES
+(13999,1,3,87),
+(14140,2,3,66),
+(14169,2,4,88),
+(14000,1,1.6,46.4),
+(14073,3,1,39),
+(14155,4,1,37),
+(14157,4,3.5,129.5),
+(14107,1,1,29),
+(14107,5,2,92),
+(14209,3,1,39),
+(14212,1,3,87),
+(14213,4,0.5,18.5),
+(14068,1,4,116),
+(14068,2,2,44),
+(14068,5,0.3,13.8),
+(14232,3,2,78),
+(14216,2,4,88),
+(14223,5,1,46),
+(14199,5,0.5,23);
+
+
+
+
+
+
+INSERT INTO Part(PartID, Part_Description, Price, Quantity)
+VALUES
+(1000,'Coolant',22,30),
+(111,'COOLANT HEATER CONTROL VALVE',18,5),
+(1211,'Seat Belt Assemply',210,4),
+(211,'RS Mirror',40,4),
+(214,'Washer Fluid',4,20),
+(323,'Spinner Assembly',450,2),
+(378,'Signal Bulb',5,20),
+(390,'Light Bulb',5,25),
+(418,'Windsheild Wiper',15,20),
+(425,'Washer Hose',10,15),
+(462,'OEM 1994-2001 Acura Integra GSR Climate Control Dash Vents Heater A/C',70,2),
+(463,'1994-1997 ACURA INTEGRA AC HEATER CLIMATE CONTROL WIRING HARNESS ORIGINAL OEM 3450',21,4),
+(464,'1994 TO 1997 ACURA INTEGRA TEMPERATURE CONTROL w/O AC',66,5),
+(465,'1996 ACURA INTEGRA CLIMATE CONTROLLER',45,6),
+(466,'WS26-5 OEM WARRANTY 1994-1997 INTEGRA TEMP AC HEAT CLIMATE CONTROL UNIT SWITCH',30,7),
+(467,'1994-1997 ACURA INTEGRA TEMPERATURE CONTROL W/AC 271766',70,8),
+(468,'1994-1997 ACURA INTEGRA CLIMATE CONTROL SWITCH DASH VENT TRIM OEM A/C HEAT HEATER',95,3),
+(477,'1994-2001 Acura Integra OEM heater blend door flap vent actuator motor 063700-4861',25,9),
+(479,'TEMPERATURE CONTROL W/AC FITS 1994-1997 INTEGRA 228948',25,22),
+(480,'1994-1995 Acura Integra driver air bag passenger air bag w/modual',40,4),
+(481,'1994-2001 Acura Integra GSR BLACK Leather Headrests',44,77),
+(482,'TEMPERATURE CONTROL W/AC FITS 1994-1997 INTEGRA 1398401',45,8),
+(483,'TEMPERATURE CONTROL W/AC FITS 1994-1997 INTEGRA 332843',37,2),
+(484,'Aluminum A/C Receiver Drier',12,5),
+(485,'1994-1997 ACURA INTEGRA TEMPERATURE CONTROL W/AC',30,8),
+(486,'RELAY 4 PIN 39792-SE0-22003 056700-7410 39792-SL4-22003 oem A1949',7,4),
+(487,'COOLANT HEATER CONTROL VALVE MOUNT W/ CABLE LATCH',18,6),
+(506,'INTEGRA Heat/AC Controller w/AC 1994-1997',84,8),
+(508,'JDM Acura ST7 Integra Honda DC2 DB8 ITR Type-R Carbon A/C Climate Control OEM',86,2),
+(510,'TEMPERATURE CONTROL W/AC FITS 1994-1997 INTEGRA 10187',60,4),
+(531,'1998 ACURA INTEGRA GSR OEM HEATER CONTROL LIGHT BAR',13,7),
+(532,'COMPRESSOR CLUTCH RELAY AIR CONDITIONER Honda CIVIC GSR AC',19,6),
+(555,'General Polts and Nuts',3,100),
+(617,'TEMPERATURE CONTROL W/AC FITS 2000-2010 Honda Civic',75,6),
+(645,'1998-2001 Acura Integra Air Conditioning Harness B18b1 Ls A/c',27,6),
+(670,'Heater A/c Control ACURA INTEGRA 1998-2001',50,6),
+(688,'1998-2001 ACURA INTEGRA TEMPERATURE CONTROL W/AC',45,6),
+(706,'2000 ACURA INTEGRA HEATER AND A/C CONTROL WIRING HARNESS PLUG OEM 32257-ST7-100',20,6),
+(712,'2000 ACURA INTEGRA HEATER AND A/C CONTROL WIRING HARNESS PLUG OEM 32257-ST7-100',26,6),
+(727,'JDM HONDA DC2 DB8 ACURA INTEGRA TYPE-R B18C 1994-2001 A/C CARBON CLIMATE CONTROL II',98,5),
+(747,'JDM Honda Acura Integra DC2 DB8 DC1 Carbon Type R A/C Climate Cotrol 1994-2001 OEM R',98,4),
+(756,'JDM HONDA DC2 DB8 ACURA INTEGRA TYPE-R B18C 1994-2001 A/C CARBON CLIMATE CONTROL III',98,2),
+(768,'1994-2001 Honda Integra TypeR DC2 OEM A/C Climate Control ITR Import Carbon JDM',100,3),
+(769,'INTEGRA Heat/AC Controller GS-R 2000-2001',101,1),
+(770,'2001, 2006 Honda Integra DC5 Acura AC Heater Climate Control JDM OEM',100,1),
+(771,'2001, 2006 Honda Integra DC5 Acura Type R Type S RSX AC Climate Control JDM OEM',110,1),
+(772,'1998-2001 ACURA INTEGRA TEMPERATURE CONTROL W/AC 197152',25,1),
+(773,'1987 ACURA LEGEND CLIMATE CONTROL w/ AUTO AC 79510SD4000 heater temperature',50,1),
+(774,'TEMPERATURE CONTROL WITHOUT AUTOMATIC AC FITS 1986-1987 LEGEND 6291404',350,1),
+(777,'A/C Expansion Valve',14,1),
+(778,'HONDA ACURA RELAY 4 PIN 39792-SE0-2003 1990.4505.1 9041990, 4505, 5051 1',10,1),
+(783,'TEMPERATURE CONTROL WITHOUT AUTOMATIC AC FITS 1988-1990 LEGEND 776698',75,1),
+(784,'HS50A-8 OEM WARRANTY 1988-1990 LEGEND TEMP AC HEAT CLIMATE CONTROL PANEL SWITCH',20,1),
+(785,'Water Pump',85,2),
+(800,'High Mileage Full synthetic Oil 1Qrt',6,100),
+(811,'Signal Relay',20,5),
+(822,'SuperTech 3250 Engine Air Filter, Replacement Filter for Toyota',15,20),
+(825,'FRAM Extra Guard Filter CH9972, 10K mile Change Interval Oil Filter',7,100),
+(867,'Ceramic break pads',15,10),
+(900,'Timing Belt Kit Water Pump For 04-06 Toyota Sienna 3.3L 3300CC 6 GAS DOHC',100,4),
+(902,'Breakes Router',80,4),
+(904,'Breaks fluid',10,10);
+
+INSERT INTO Vendor(VendorID, vendor, vendorAddress, vendorPhone)
+VALUES
+(1,'Senger Inc','702 Hovde Center','279-750-7429'),
+(2,'Auer, Okuneva and Streich','1333 Nova Drive','576-343-8318'),
+(3,'Stehr, Ebert and Braun','0588 Spaight Crossing','245-140-0943'),
+(4,'Kautzer LLC','55 Packers Drive','147-555-8000'),
+(5,'Abernathy-Purdy','3 Bobwhite Avenue','113-873-3330'),
+(6,'Gleichner LLC','25 Daystar Circle','474-846-9283'),
+(7,'Hartmann, Ritchie and Buckridge','0 Oak Lane','341-991-9231'),
+(8,'Kshlerin, Bednar and Denesik','57 Lawn Pass','359-442-5927'),
+(9,'Rogahn, Fisher and Tillman
+','25305 Clarendon Terrace
+','793-526-8512
+'),
+(10,'Hane Inc
+','11783 Oriole Trail','835-181-9469');
+
+INSERT INTO vendorPart(PartID, VendorID)
+VALUES
+
+(1000,1),
+(1000,2),
+(1000,3),
+(111,6),
+(111,8),
+(1211,2),
+(1211,7),
+(1211,3),
+(211,4),
+(211,8),
+(214,7),
+(214,5),
+(214,2),
+(323,2),
+(323,5),
+(323,4),
+(378,9),
+(378,2),
+(390,4),
+(390,2),
+(418,9),
+(418,7),
+(425,10),
+(462,3),
+(462,10),
+(463,10),
+(463,6),
+(464,1),
+(464,9),
+(465,9),
+(465,6),
+(466,9),
+(466,3),
+(467,9),
+(467,8),
+(468,5),
+(477,5),
+(479,5),
+(480,5),
+(481,4),
+(482,4),
+(483,4),
+(484,4),
+(485,2),
+(486,2),
+(487,2),
+(506,2),
+(508,1),
+(510,1),
+(531,1),
+(532,1),
+(555,3),
+(617,3),
+(645,3),
+(670,3),
+(688,1),
+(706,1),
+(712,1),
+(727,7),
+(747,7),
+(756,7),
+(768,7),
+(769,8),
+(770,8),
+(771,8),
+(772,6),
+(773,3),
+(774,3),
+(777,4),
+(778,4),
+(783,5),
+(784,5),
+(785,6),
+(800,6),
+(811,6),
+(822,1),
+(825,1),
+(867,1),
+(900,6),
+(902,3),
+(904,3);
+
+
+INSERT INTO PartService(ServiceID, PartID, QuantityUsed,price,totalPrice)
+VALUES
+(13999,785,1,85,85),
+(14140,323,1,450,450),
+(14169,484,1,12,12),
+(14000,867,2,15,30),
+(14000,902,2,80,160),
+(14073,811,1,20,20),
+(14157,211,1,40,40),
+(14157,487,1,18,18),
+(14107,1000,2,22,44),
+(14107,111,1,18,18),
+(14209,378,2,5,10),
+(14213,555,4,3,12),
+(14068,1211,1,210,210),
+(14232,783,1,75,75),
+(14232,785,1,85,100),
+(14232,900,1,100,100),
+(14216,390,2,5,10),
+(14216,418,2,15,30),
+(14216,425,1,10,10),
+(14216,904,2,10,20),
+(14223,390,2,5,10),
+(14199,214,1,4,4),
+(14199,800,6,6,36),
+(14199,822,1,15,15),
+(14199,825,1,7,7);
+
+
+
+INSERT INTO Bill(BillNumber, bDate, ticketID, bill_total, balance)
+VALUES
+(101,'2015-01-14',13,338,0),
+(102,'2015-01-06',14,59,0),
+(103,'2015-01-09',121,350,0),
+(104,'2015-01-14',172,384,84),
+(105,'2015-01-02',178,688,0),
+(106,'2015-01-15',228,214,14),
+(107,'2015-01-06',248,461,0),
+(108,'2015-01-05',283,100,90),
+(109,'2015-02-07',626,85,65)
+
+;
